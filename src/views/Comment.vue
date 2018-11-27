@@ -1,53 +1,51 @@
 <template>
-    <article class="media">
-        <figure class="media-left">
-            <p class="image is-64x64">
-                <img src="https://bulma.io/images/placeholders/128x128.png">
-            </p>
-        </figure>
-        <div class="media-content">
-            <div class="content">
-                <p v-for="comment in comments" :key="comment.id">
-                    <strong v-text="comment.name"></strong>
-                    <br v-text="comment.content">
-
+    <div>
+        <article class="media" v-for="(comment,index) in comments" :key="index">
+            <avatar></avatar>
+            <div class="media-content">
+                <div class="content">
+                    <strong v-text="user.name"></strong>
+                    <br>{{ comment.content }}
                     <br>
-                    <small><a>Like</a> · <a @click="showReplyComment = !showReplyComment">Reply</a> · 3 hrs</small>
-                </p>
+                    <small><a>Like</a> · <a @click="showReplyComment = !showReplyComment">Reply</a> · <span
+                            v-text="onPosted(comment.created_at)"></span></small>
+                </div>
+                <div v-if="reply[0].length > 0">
+                    <reply-comment :reply="reply" :comment_id="comment.id"></reply-comment>
+                </div>
+                <post-comment v-if="showReplyComment"></post-comment>
             </div>
-            <reply-comment></reply-comment>
-            <post-comment v-if="showReplyComment"></post-comment>
-        </div>
-    </article>
-
+        </article>
+    </div>
 </template>
 
 <script>
     import ReplyComment from './ReplyComment';
     import PostComment from "./PostComment";
+    import Avatar from "@/components/Avatar";
+
     export default {
         name: "Comment",
-        components:{
+        props: ['comments', 'user', 'reply'],
+
+        data() {
+            return {}
+        },
+        components: {
             PostComment,
-            ReplyComment
+            ReplyComment,
+            Avatar,
         },
-        data(){
-            return{
-                showReplyComment:false,
-                content:'',
-                name:'Barbara Middleton',
-                postId:1,
-                comments:[
-                    {id:1,name:'Barbara Middleton',content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis porta eros lacus, nec ultricies elit blandit non. Suspendisse pellentesque mauris sit amet dolor blandit rutrum. Nunc in tempus turpis.'},
-
-                ]
+        data() {
+            return {
+                showReplyComment: false,
             }
         },
-        methods:{
-            addComment(){
-                return comments.push(this.postId++ ,this.name,this.content);
-
-            }
+        methods: {
+            onPosted(created_at) {
+                moment(created_at).format('YYYY/MM/DD hh:mm');
+                return moment(created_at, "YYYY/MM/DD hh:mm").fromNow();
+            },
         }
     }
 </script>

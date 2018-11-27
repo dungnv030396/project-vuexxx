@@ -5,27 +5,53 @@
             <h1 v-text="post.title"></h1>
             <p v-text="post.content"></p>
             <div>
-                <span class="badge">Posted 2012-08-02 20:47:04</span><p class="label float-right text-blue"></p>
+                <b v-text="onPosted(post.created_at)"></b>
+                <p class="label float-right text-blue"></p>
             </div>
         </div>
         <hr>
-        <comment></comment>
-        <post-comment></post-comment>
+        <comment :comments="comments" :user="user" :reply="reply"></comment>
+        <post-comment :post_id="post.id"></post-comment>
     </div>
 </template>
 
 <script>
     import Comment from './Comment'
     import PostComment from './PostComment';
+
     export default {
         name: "DetailPost",
-        data(){
-            return{
-                post: { id:1,title: 'Alice in Wonderland, part dos',content:'\'You ought to be ashamed of yourself for asking such a simple question,\' added the Gryphon; and then they both sat silent and looked at poor Alice, who felt ready to sink into the earth. At last the Gryphon said to the Mock Turtle, \'Drive on, old fellow! Don\'t be all day about it!\' and he went on in these words: \'Yes, we went to school in the sea, though you mayn\'t believe it—\' \'I never said I didn\'t!\' interrupted Alice. \'You did,\' said the Mock Turtle.'},
+        data() {
+            return {
+                post: {},
+                comments:[],
+                user:[],
+                reply:{},
             }
         },
-        components:{
-            Comment,PostComment
+        components: {
+            Comment, PostComment
+        },
+        created() {
+            this.detailPost();
+            console.log(this.$cookies.get("user_session"))
+        }
+        ,
+        methods: {
+            detailPost() {
+                var vm = this;
+                axios.get('http://homestead.test/detail-post/' + this.$route.params.id)
+                    .then(function (response) {
+                        vm.post = response.data.detail;
+                        vm.comments = response.data.comments;
+                        vm.user = response.data.user;
+                        vm.reply = response.data.reply;
+                    }).catch(error => console.log(error));
+            },
+            onPosted(created_at){
+                moment(created_at).format('YYYY/MM/DD hh:mm');
+                return moment(created_at, "YYYY/MM/DD hh:mm").fromNow();
+            }
         }
     }
 </script>

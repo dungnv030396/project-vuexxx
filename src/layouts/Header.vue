@@ -7,7 +7,8 @@
                     <div class="container">
                         <div class="navbar-brand">
                             <a class="navbar-item">
-                                <router-link to="/index"><img src="https://bulma.io/images/bulma-type-white.png" alt="Logo"></router-link>
+                                <router-link to="/index"><img src="https://bulma.io/images/bulma-type-white.png"
+                                                              alt="Logo"></router-link>
                             </a>
                             <span class="navbar-burger burger" data-target="navbarMenuHeroA">
                           <span></span>
@@ -20,18 +21,19 @@
                                 <a class="navbar-item is-active">
                                     <router-link to="/index">Home</router-link>
                                 </a>
-                                <a class="navbar-item">
+                                <a class="navbar-item" v-show="Object.keys(user).length === 0">
                                     <router-link to="/sign-up">Sign Up</router-link>
                                 </a>
-                                <a class="navbar-item" @click="showModal=true">
+                                <a class="navbar-item" @click="showModal=true" v-show="Object.keys(user).length === 0">
                                     Login
                                 </a>
+                                <a class="navbar-item" v-show="Object.keys(user).length !== 0" v-text="user.name"></a>
                                 <span class="navbar-item">
-              <a class="button is-primary is-inverted">
+              <a class="button is-primary is-inverted" v-show="Object.keys(user).length !== 0" @click="logout">
                 <span class="icon">
                   <i class="fab fa-github"></i>
                 </span>
-                <span>Download</span>
+                <span>Logout</span>
               </a>
             </span>
                             </div>
@@ -57,12 +59,12 @@
                 <nav class="tabs">
                     <div class="container">
                         <ul>
-                            <li><router-link :to="{ name:'new-post' }">View All Post</router-link></li>
-                            <li><router-link :to="{ name:'add-post' }">Add New Post</router-link></li>
-                            <li><a>Grid</a></li>
-                            <li><a>Elements</a></li>
-                            <li><a>Components</a></li>
-                            <li><a>Layout</a></li>
+                            <li>
+                                <router-link :to="{ name:'new-post' }">View All Post</router-link>
+                            </li>
+                            <li v-if="Object.keys(user).length !== 0">
+                                <router-link :to="{ name:'add-post' }" >Add New Post</router-link>
+                            </li>
                         </ul>
                     </div>
                 </nav>
@@ -74,19 +76,63 @@
 </template>
 
 <script>
-import Login from '@/views/Login';
+    import Login from '@/views/Login';
 
-export default {
-  name: 'Header',
-  data() {
-    return {
-      showModal: false,
+    export default {
+        name: 'Header',
+        // user: {},
+        data() {
+            return {
+                showModal: false,
+                user:{},
+            };
+        },
+        components: {
+            Login,
+        },
+        mounted(){
+            this.getUser();
+        }
+        // created(){
+        //     console.log(this.$cookies.get("user_session"));
+        //     this.getUser();
+        // }
+        ,methods:{
+            getUser(){
+                var vm = this;
+                if (this.$cookies.get("user_session")!==null)
+                {
+                    axios.get('http://homestead.test/get-user-profile', {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': "Bearer " +this.$cookies.get("user_session"),
+                        }
+                    })
+                        .then(function (response) {
+                            vm.user = response.data;
+                        });
+                }else{
+                    vm.user ={};
+                }
+            },
+            logout(){
+                var vm = this;
+                axios.get('http://homestead.test/logout',{
+                    headers:{
+                        'Accept':'application/json',
+                        'Authorization': "Bearer "+this.$cookies.get("user_session"),
+                    }
+                })
+                    .then(function (response) {
+                       if (response.status === 200){
+                           vm.$cookies.remove("user_session");
+                           location.reload();
+                       }
+                    });
+            }
+        },
+
     };
-  },
-  components: {
-    Login,
-  },
-};
 </script>
 
 <style scoped>
