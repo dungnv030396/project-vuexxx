@@ -34,7 +34,6 @@
         },
         created() {
             this.detailPost();
-            console.log(this.$cookies.get("user_session"))
         }
         ,
         methods: {

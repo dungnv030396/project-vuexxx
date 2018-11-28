@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="addComment">
+    <form @submit.prevent="addReplyComment">
         <article class="media">
             <avatar></avatar>
             <div class="media-content">
@@ -11,7 +11,7 @@
                 </div>
                 <div class="field">
                     <p class="control">
-                        <button class="btn btn-primary" type="submit">Post comment</button>
+                        <button class="btn btn-primary" type="submit">Reply</button>
                     </p>
                 </div>
             </div>
@@ -21,37 +21,39 @@
 
 <script>
     import Avatar from '@/components/Avatar';
-
     export default {
-        name: "PostComment",
-        props: ['post_id'],
-        data() {
-            return {
-                content: '',
-            }
-        },
+        name: "PostReplyComment",
+        props:['comment_id']
+        ,
         components:{
             Avatar
         },
-        methods: {
-            addComment() {
+        data(){
+            return{
+                content:'',
+            }
+        },
+        methods:{
+            addReplyComment(){
                 var vm = this;
-                axios.post('http://homestead.test/add-comment', {content:this.content,post_id:this.post_id},{
+                axios.post('http://homestead.test/add-reply-comment',{content: this.content,comment_id:this.comment_id},{
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': "Bearer "+this.$cookies.get("user_session"),
                     }
-                }).then(function (response) {
+                })
+                .then(function (response) {
                     if (response.status === 200) {
                         location.reload();
                     }
-                }).catch(function (error) {
-                    if (error.response.status === 401){
-                        vm.notificationError();
-                    }else{
-                        console.log(error.response);
-                    }
-                });
+                })
+                    .catch(function (error) {
+                        if (error.response.status === 401) {
+                            vm.notificationError();
+                        } else {
+                            console.log(error.response);
+                        }
+                    });
             },
             notificationError() {
                 this.$message.error('Oops,Please! Login before comment.');
