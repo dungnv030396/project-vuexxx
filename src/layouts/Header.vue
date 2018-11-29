@@ -1,5 +1,7 @@
 <template>
-    <div id="app">
+    <div id="app" v-loading="loading" element-loading-text="Loading..."
+         element-loading-spinner="el-icon-loading"
+         element-loading-background="rgba(0, 0, 0, 0.8)">
         <section class="hero is-primary is-medium">
             <!-- Hero head: will stick at the top -->
             <div class="hero-head">
@@ -63,7 +65,7 @@
                                 <router-link :to="{ name:'new-post' }">View All Post</router-link>
                             </li>
                             <li v-if="Object.keys(user).length !== 0">
-                                <router-link :to="{ name:'add-post' }" >Add New Post</router-link>
+                                <router-link :to="{ name:'add-post' }">Add New Post</router-link>
                             </li>
                         </ul>
                     </div>
@@ -77,59 +79,55 @@
 
 <script>
     import Login from '@/views/Login';
-
+    import EventBus from '@/event-bus';
     export default {
         name: 'Header',
         // user: {},
         data() {
             return {
                 showModal: false,
-                user:{},
+                user: {},
+                loading: false,
             };
         },
         components: {
             Login,
         },
-        mounted(){
+        mounted() {
             this.getUser();
         }
-        // created(){
-        //     console.log(this.$cookies.get("user_session"));
-        //     this.getUser();
-        // }
-        ,methods:{
-            getUser(){
+        , methods: {
+            getUser() {
                 var vm = this;
-                if (this.$cookies.get("user_session")!==null)
-                {
+                if (this.$cookies.get("user_session") !== null) {
                     axios.get('http://homestead.test/get-user-profile', {
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': "Bearer " +this.$cookies.get("user_session"),
+                            'Authorization': "Bearer " + this.$cookies.get("user_session"),
                         }
                     })
                         .then(function (response) {
                             vm.user = response.data;
                         });
-                }else{
-                    vm.user ={};
+                } else {
+                    vm.user = {};
                 }
             },
-            logout(){
+            logout() {
                 var vm = this;
-                axios.get('http://homestead.test/logout',{
-                    headers:{
-                        'Accept':'application/json',
-                        'Authorization': "Bearer "+this.$cookies.get("user_session"),
+                axios.get('http://homestead.test/logout', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': "Bearer " + this.$cookies.get("user_session"),
                     }
                 })
                     .then(function (response) {
-                       if (response.status === 200){
-                           vm.$cookies.remove("user_session");
-                           location.reload();
-                       }
+                        if (response.status === 200) {
+                            vm.$cookies.remove("user_session");
+                            location.reload();
+                        }
                     });
-            }
+            },
         },
 
     };

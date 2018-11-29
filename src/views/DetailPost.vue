@@ -1,5 +1,5 @@
 <template>
-    <div class="container ">
+    <div class="container">
         <h1 class="color-red" style="text-align: center; font-size: 2.5em">Detail Post</h1>
         <div class="col-md-12 ">
             <h1 v-text="post.title"></h1>
@@ -18,9 +18,10 @@
 <script>
     import Comment from './Comment'
     import PostComment from './PostComment';
-
+    import EventBus from '@/event-bus';
     export default {
         name: "DetailPost",
+        props:['status'],
         data() {
             return {
                 post: {},
@@ -34,23 +35,27 @@
         },
         created() {
             this.detailPost();
-        }
-        ,
+        },
+        mounted(){
+            EventBus.$on('post',this.detailPost);
+        },
         methods: {
             detailPost() {
                 var vm = this;
                 axios.get('http://homestead.test/detail-post/' + this.$route.params.id)
                     .then(function (response) {
                         vm.post = response.data.detail;
-                        vm.comments = response.data.comments;
                         vm.user = response.data.user;
+                        vm.comments = response.data.comments;
                         vm.reply = response.data.reply;
-                    }).catch(error => console.log(error));
+                        // EventBus.$emit('loaded', 'accepted');
+                    })
+                    .catch(error => console.log(error));
             },
             onPosted(created_at){
                 moment(created_at).format('YYYY/MM/DD hh:mm');
                 return moment(created_at, "YYYY/MM/DD hh:mm").fromNow();
-            }
+            },
         }
     }
 </script>

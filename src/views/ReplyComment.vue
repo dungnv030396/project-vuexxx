@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div v-for="(items,index) in reply" :key="index" v-if="comment_id===items[0].comment_id">
-        <article class="media" v-for="item in items">
+        <div v-for="(items,index) in reply" :key="index">
+        <article class="media" v-for="item in items" v-if="comment_id === item.comment_id">
                 <avatar></avatar>
                 <div class="media-content">
                     <div class="content">

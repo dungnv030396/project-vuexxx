@@ -22,6 +22,8 @@
 <script>
     import Avatar from '@/components/Avatar';
 
+    import EventBus from '@/event-bus';
+
     export default {
         name: "PostComment",
         props: ['post_id'],
@@ -30,21 +32,21 @@
                 content: '',
             }
         },
-        components:{
+        components: {
             Avatar
         },
         methods: {
             addComment() {
+                // EventBus.$emit('loading', 'accepted');
                 var vm = this;
-                axios.post('http://homestead.test/add-comment', {content:this.content,post_id:this.post_id},{
+                axios.post('http://homestead.test/add-comment', {content: this.content, post_id: this.post_id}, {
                     headers: {
                         'Accept': 'application/json',
-                        'Authorization': "Bearer "+this.$cookies.get("user_session"),
+                        'Authorization': "Bearer " + this.$cookies.get("user_session"),
                     }
                 }).then(function (response) {
-                    if (response.status === 200) {
-                        location.reload();
-                    }
+                    EventBus.$emit('post', 'accepted');
+                    vm.content ='';
                 }).catch(function (error) {
                     if (error.response.status === 401){
                         vm.notificationError();
