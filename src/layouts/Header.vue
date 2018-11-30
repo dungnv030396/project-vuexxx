@@ -79,10 +79,8 @@
 
 <script>
     import Login from '@/views/Login';
-    import EventBus from '@/event-bus';
     export default {
         name: 'Header',
-        // user: {},
         data() {
             return {
                 showModal: false,

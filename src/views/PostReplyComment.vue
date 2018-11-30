@@ -21,6 +21,8 @@
 
 <script>
     import Avatar from '@/components/Avatar';
+    import EventBus from '@/event-bus';
+
     export default {
         name: "PostReplyComment",
         props:['comment_id']
@@ -43,9 +45,8 @@
                     }
                 })
                 .then(function (response) {
-                    if (response.status === 200) {
-                        location.reload();
-                    }
+                    EventBus.$emit('post', 'accepted');
+                    vm.content ='';
                 })
                     .catch(function (error) {
                         if (error.response.status === 401) {
