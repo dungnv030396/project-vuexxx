@@ -19,15 +19,16 @@
     import Comment from './Comment'
     import PostComment from './PostComment';
     import EventBus from '@/event-bus';
+
     export default {
         name: "DetailPost",
-        props:['status'],
+        props: ['status'],
         data() {
             return {
                 post: {},
-                comments:[],
-                user:[],
-                reply:{},
+                comments: [],
+                user: [],
+                reply: {},
             }
         },
         components: {
@@ -36,23 +37,27 @@
         created() {
             this.detailPost();
         },
-        mounted(){
-            EventBus.$on('post',this.detailPost);
+        mounted() {
+            EventBus.$on('post', this.detailPost);
         },
         methods: {
-            detailPost() {
+            async detailPost() {
                 var vm = this;
-                axios.get('http://homestead.test/detail-post/' + this.$route.params.id)
-                    .then(function (response) {
-                        vm.post = response.data.detail;
-                        vm.user = response.data.user;
-                        vm.comments = response.data.comments;
-                        vm.reply = response.data.reply;
-                        // EventBus.$emit('loaded', 'accepted');
-                    })
-                    .catch(error => console.log(error));
+                try {
+                    const result = axios.get('http://homestead.test/detail-post/' + this.$route.params.id);
+                    const {data} = await result;
+                    if (data[0] === 200) {
+                        vm.post = data.detail;
+                        vm.user = data.user;
+                        vm.comments = data.comments;
+                        vm.reply = data.reply;
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+                EventBus.$emit('posted', 'accepted');
             },
-            onPosted(created_at){
+            onPosted(created_at) {
                 moment(created_at).format('YYYY/MM/DD hh:mm');
                 return moment(created_at, "YYYY/MM/DD hh:mm").fromNow();
             },

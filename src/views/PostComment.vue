@@ -36,24 +36,27 @@
             Avatar
         },
         methods: {
-            addComment() {
-                // EventBus.$emit('loading', 'accepted');
+            async addComment() {
+                EventBus.$emit('posting', 'accepted');
                 var vm = this;
-                axios.post('http://homestead.test/add-comment', {content: this.content, post_id: this.post_id}, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': "Bearer " + this.$cookies.get("user_session"),
+                try {
+                   const result =  await axios.post('http://homestead.test/add-comment', {content: this.content, post_id: this.post_id}, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': "Bearer " + this.$cookies.get("user_session"),
+                        }
+                    });
+                    if (result.status === 200){
+                        EventBus.$emit('post', 'accepted');
+                        vm.content ='';
                     }
-                }).then(function (response) {
-                    EventBus.$emit('post', 'accepted');
-                    vm.content ='';
-                }).catch(function (error) {
-                    if (error.response.status === 401){
+                } catch (error) {
+                    if (error.response.status === 401) {
                         vm.notificationError();
-                    }else{
-                        console.log(error.response);
+                    } else {
+                        console.log(error)
                     }
-                });
+                }
             },
             notificationError() {
                 this.$message.error('Oops,Please! Login before comment.');

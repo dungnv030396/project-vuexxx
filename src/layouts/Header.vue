@@ -23,15 +23,15 @@
                                 <a class="navbar-item is-active">
                                     <router-link to="/index">Home</router-link>
                                 </a>
-                                <a class="navbar-item" v-show="Object.keys(user).length === 0">
+                                <a class="navbar-item" v-if="Object.keys(user).length === 0">
                                     <router-link to="/sign-up">Sign Up</router-link>
                                 </a>
-                                <a class="navbar-item" @click="showModal=true" v-show="Object.keys(user).length === 0">
+                                <a class="navbar-item" @click="showModal=true" v-if="Object.keys(user).length === 0">
                                     Login
                                 </a>
-                                <a class="navbar-item" v-show="Object.keys(user).length !== 0" v-text="user.name"></a>
+                                <a class="navbar-item" v-if="Object.keys(user).length !== 0" v-text="user.name"></a>
                                 <span class="navbar-item">
-              <a class="button is-primary is-inverted" v-show="Object.keys(user).length !== 0" @click="logout">
+              <a class="button is-primary is-inverted" v-if="Object.keys(user).length !== 0" @click="logout">
                 <span class="icon">
                   <i class="fab fa-github"></i>
                 </span>
@@ -79,6 +79,8 @@
 
 <script>
     import Login from '@/views/Login';
+    import EventBus from '@/event-bus';
+
     export default {
         name: 'Header',
         data() {
@@ -93,6 +95,13 @@
         },
         mounted() {
             this.getUser();
+            EventBus.$on('auth',this.getUser);
+            EventBus.$on('posting', showLoading => {
+                this.loading = true;
+            });
+            EventBus.$on('posted', hiddenLoading => {
+                this.loading = false;
+            });
         }
         , methods: {
             getUser() {
@@ -106,6 +115,7 @@
                     })
                         .then(function (response) {
                             vm.user = response.data;
+                            vm.showModal = false;
                         });
                 } else {
                     vm.user = {};
@@ -122,7 +132,7 @@
                     .then(function (response) {
                         if (response.status === 200) {
                             vm.$cookies.remove("user_session");
-                            location.reload();
+                            EventBus.$emit('auth','logout');
                         }
                     });
             },

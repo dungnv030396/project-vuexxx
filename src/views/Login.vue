@@ -32,8 +32,7 @@
     import {
         maxLength, required, minLength, email,
     } from 'vuelidate/lib/validators';
-    import axios from 'axios';
-    window.axios = axios;
+    import EventBus from '@/event-bus';
 
     import Input2 from '@/components/Input';
     export default {
@@ -67,7 +66,7 @@
                 ).then(function (response) {
                     if (response.status === 200) {
                         vm.$cookies.set('user_session', response.data.success['token'], "1d");
-                        location.reload();
+                        EventBus.$emit('auth','login')
                     }
                 }).catch(function (error) {
                     if(error.response.status===401){

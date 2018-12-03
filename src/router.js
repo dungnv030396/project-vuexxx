@@ -31,10 +31,5 @@ export default new Router({
             name: 'home',
             component: SignUp,
         },
-        // {
-        //   path: '/about',
-        //   name: 'about',
-        //   component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
-        // },
     ],
 });

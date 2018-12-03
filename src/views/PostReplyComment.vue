@@ -25,36 +25,38 @@
 
     export default {
         name: "PostReplyComment",
-        props:['comment_id']
+        props: ['comment_id']
         ,
-        components:{
+        components: {
             Avatar
         },
-        data(){
-            return{
-                content:'',
+        data() {
+            return {
+                content: '',
             }
         },
-        methods:{
-            addReplyComment(){
+        methods: {
+            async addReplyComment() {
+                EventBus.$emit('posting', 'accepted');
                 var vm = this;
-                axios.post('http://homestead.test/add-reply-comment',{content: this.content,comment_id:this.comment_id},{
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': "Bearer "+this.$cookies.get("user_session"),
-                    }
-                })
-                .then(function (response) {
-                    EventBus.$emit('post', 'accepted');
-                    vm.content ='';
-                })
-                    .catch(function (error) {
-                        if (error.response.status === 401) {
-                            vm.notificationError();
-                        } else {
-                            console.log(error.response);
+                try {
+                    const result = await axios.post('http://homestead.test/add-reply-comment',{content: this.content,comment_id:this.comment_id},{
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': "Bearer "+this.$cookies.get("user_session"),
                         }
                     });
+                    if (result.status === 200){
+                        EventBus.$emit('post', 'accepted');
+                        vm.content ='';
+                    }
+                } catch (e) {
+                    if (e.response.status === 401) {
+                        vm.notificationError();
+                    } else {
+                        console.log(e.response);
+                    }
+                }
             },
             notificationError() {
                 this.$message.error('Oops,Please! Login before comment.');
